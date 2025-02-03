@@ -1,14 +1,20 @@
 import { Tabs } from "expo-router";
-import React from "react";
+import React, { useEffect } from "react";
 import * as DocumentPicker from "expo-document-picker";
 
 import { HapticTab } from "@/components/HapticTab";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import TabBarBackground from "@/components/ui/TabBarBackground";
 import { useColorScheme } from "@/hooks/useColorScheme";
+import { BooksService } from "@/services/books";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+
+  // Initialize books directory when app starts
+  useEffect(() => {
+    BooksService.init();
+  }, []);
 
   const handleAddPress = async () => {
     try {
@@ -18,9 +24,7 @@ export default function TabLayout() {
       });
 
       if (result.assets && result.assets[0]) {
-        const file = result.assets[0];
-        console.log("Selected file:", file.name, file.uri);
-        // Here we'll handle the selected epub file
+        await BooksService.addBook(result.assets[0]);
       }
     } catch (err) {
       console.log("Document picking error:", err);
