@@ -44,22 +44,13 @@ export const BooksService = {
       const fileExtension = pickedFile.name.split(".").pop();
       const newPath = `${BOOKS_DIRECTORY}${bookId}.${fileExtension}`;
 
-      console.log("File details:", {
-        originalUri: pickedFile.uri,
-        name: pickedFile.name,
-        size: pickedFile.size,
-        newPath,
-      });
+      console.log("Starting to add book:", pickedFile.name);
 
       // Copy file to permanent storage
       await FileSystem.copyAsync({
         from: pickedFile.uri,
         to: newPath,
       });
-
-      // Verify file was copied
-      const newFileInfo = await FileSystem.getInfoAsync(newPath);
-      console.log("New file info:", newFileInfo);
 
       // Create book metadata
       const newBook: Book = {
@@ -70,10 +61,7 @@ export const BooksService = {
       };
 
       await BooksService.addToIndex(newBook);
-
-      // Verify index file after update
-      const books = await BooksService.getBooks();
-      console.log("Updated books list:", books);
+      console.log("Book added successfully:", newBook);
 
       return newBook;
     } catch (error) {

@@ -1,29 +1,18 @@
 import { View, Text, FlatList, Pressable } from "react-native";
-import { useEffect, useState, useCallback } from "react";
-import { useFocusEffect } from "@react-navigation/native";
+import { useEffect } from "react";
 import { BooksService } from "@/services/books";
+import { useBooks } from "@/services/BooksContext";
 
 export default function HomeScreen() {
-  const [books, setBooks] = useState<
-    Awaited<ReturnType<typeof BooksService.getBooks>>
-  >([]);
+  const { books, refreshBooks } = useBooks();
 
-  const loadBooks = useCallback(async () => {
-    const loadedBooks = await BooksService.getBooks();
-    console.log("Loaded books:", loadedBooks);
-    setBooks(loadedBooks);
+  useEffect(() => {
+    refreshBooks();
   }, []);
-
-  // Refresh books list whenever the screen comes into focus
-  useFocusEffect(
-    useCallback(() => {
-      loadBooks();
-    }, [loadBooks])
-  );
 
   const handleClear = async () => {
     await BooksService.clearAllBooks();
-    loadBooks();
+    refreshBooks();
   };
 
   if (books.length === 0) {

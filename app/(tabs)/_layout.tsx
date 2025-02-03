@@ -7,8 +7,11 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 import TabBarBackground from "@/components/ui/TabBarBackground";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { BooksService } from "@/services/books";
+import { eventEmitter, Events } from "@/services/events";
+import { useBooks } from "@/services/BooksContext";
 
 export default function TabLayout() {
+  const { refreshBooks } = useBooks();
   const colorScheme = useColorScheme();
 
   // Initialize books directory when app starts
@@ -25,8 +28,7 @@ export default function TabLayout() {
 
       if (result.assets && result.assets[0]) {
         await BooksService.addBook(result.assets[0]);
-        // Navigate to home tab and force refresh
-        router.push("/(tabs)/");
+        await refreshBooks(); // Refresh books immediately after adding
       }
     } catch (err) {
       console.log("Document picking error:", err);
