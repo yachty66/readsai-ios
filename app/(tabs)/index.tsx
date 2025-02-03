@@ -1,5 +1,6 @@
 import { View, Text, FlatList, Pressable } from "react-native";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import { BooksService } from "@/services/books";
 
 export default function HomeScreen() {
@@ -7,19 +8,22 @@ export default function HomeScreen() {
     Awaited<ReturnType<typeof BooksService.getBooks>>
   >([]);
 
-  useEffect(() => {
-    loadBooks();
-  }, []);
-
-  const loadBooks = async () => {
+  const loadBooks = useCallback(async () => {
     const loadedBooks = await BooksService.getBooks();
     console.log("Loaded books:", loadedBooks);
     setBooks(loadedBooks);
-  };
+  }, []);
+
+  // Refresh books list whenever the screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      loadBooks();
+    }, [loadBooks])
+  );
 
   const handleClear = async () => {
     await BooksService.clearAllBooks();
-    loadBooks(); // Refresh the list
+    loadBooks();
   };
 
   if (books.length === 0) {
@@ -45,22 +49,26 @@ export default function HomeScreen() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#000000", padding: 16 }}>
-      <Pressable
-        onPress={handleClear}
-        style={{
-          padding: 12,
-          backgroundColor: "#FF3B30",
-          borderRadius: 8,
-          marginBottom: 16,
-          alignItems: "center",
-        }}
-      >
-        <Text style={{ color: "#FFFFFF", fontWeight: "500" }}>
-          Clear All Books
-        </Text>
-      </Pressable>
+    <View style={{ flex: 1, backgroundColor: "#000000" }}>
+      <View style={{ padding: 16, paddingTop: 60 }}>
+        <Pressable
+          onPress={handleClear}
+          style={{
+            padding: 16,
+            backgroundColor: "#FF3B30",
+            borderRadius: 8,
+            marginBottom: 16,
+            alignItems: "center",
+          }}
+        >
+          <Text style={{ color: "#FFFFFF", fontWeight: "500", fontSize: 16 }}>
+            Clear All Books
+          </Text>
+        </Pressable>
+      </View>
+
       <FlatList
+        style={{ paddingHorizontal: 16 }}
         data={books}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (

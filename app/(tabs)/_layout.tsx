@@ -1,4 +1,4 @@
-import { Tabs } from "expo-router";
+import { Tabs, router } from "expo-router";
 import React, { useEffect } from "react";
 import * as DocumentPicker from "expo-document-picker";
 
@@ -25,6 +25,8 @@ export default function TabLayout() {
 
       if (result.assets && result.assets[0]) {
         await BooksService.addBook(result.assets[0]);
+        // Navigate to home tab and force refresh
+        router.push("/(tabs)/");
       }
     } catch (err) {
       console.log("Document picking error:", err);
