@@ -18,6 +18,21 @@ export const EPUBService = {
       const zip = new JSZip();
       const epub = await zip.loadAsync(content, { base64: true });
 
+      // Find and parse the OPF file to get metadata
+      let title = null;
+      for (const [path, file] of Object.entries(epub.files)) {
+        if (path.endsWith(".opf")) {
+          const opfContent = await file.async("text");
+          const titleMatch = opfContent.match(
+            /<dc:title[^>]*>([^<]+)<\/dc:title>/
+          );
+          if (titleMatch && titleMatch[1]) {
+            title = titleMatch[1].trim();
+          }
+          break;
+        }
+      }
+
       // Find cover image (usually named cover.jpg or similar)
       let coverImage = null;
       for (const [path, file] of Object.entries(epub.files)) {
@@ -71,6 +86,7 @@ export const EPUBService = {
       return {
         chapters,
         coverImage,
+        title,
       };
     } catch (error) {
       console.error("Error extracting EPUB:", error);
