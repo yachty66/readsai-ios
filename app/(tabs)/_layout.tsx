@@ -1,6 +1,6 @@
 import { Tabs } from "expo-router";
 import React from "react";
-import { Platform } from "react-native";
+import * as DocumentPicker from "expo-document-picker";
 
 import { HapticTab } from "@/components/HapticTab";
 import { IconSymbol } from "@/components/ui/IconSymbol";
@@ -9,6 +9,23 @@ import { useColorScheme } from "@/hooks/useColorScheme";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+
+  const handleAddPress = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: ["application/epub+zip"],
+        copyToCacheDirectory: true,
+      });
+
+      if (result.assets && result.assets[0]) {
+        const file = result.assets[0];
+        console.log("Selected file:", file.name, file.uri);
+        // Here we'll handle the selected epub file
+      }
+    } catch (err) {
+      console.log("Document picking error:", err);
+    }
+  };
 
   return (
     <Tabs
@@ -35,6 +52,12 @@ export default function TabLayout() {
       />
       <Tabs.Screen
         name="explore"
+        listeners={{
+          tabPress: (e) => {
+            e.preventDefault();
+            handleAddPress();
+          },
+        }}
         options={{
           title: "Add",
           tabBarIcon: ({ color }) => (
