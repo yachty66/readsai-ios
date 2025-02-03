@@ -1,4 +1,4 @@
-import { View, Text, FlatList, Pressable } from "react-native";
+import { View, Text, FlatList, Pressable, Image } from "react-native";
 import { useEffect } from "react";
 import { BooksService } from "@/services/books";
 import { useBooks } from "@/services/BooksContext";
@@ -79,12 +79,47 @@ export default function HomeScreen() {
               backgroundColor: pressed ? "#222222" : "#111111",
               marginBottom: 8,
               borderRadius: 8,
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 16,
             })}
           >
-            <Text style={{ color: "#FFFFFF", fontSize: 16 }}>{item.name}</Text>
-            <Text style={{ color: "#666666", fontSize: 12 }}>
-              Added: {new Date(item.addedAt).toLocaleDateString()}
-            </Text>
+            {item.coverImage ? (
+              <Image
+                source={{ uri: item.coverImage }}
+                style={{
+                  width: 60,
+                  height: 90,
+                  borderRadius: 4,
+                  backgroundColor: "#333", // Fallback color while loading
+                }}
+                resizeMode="cover"
+                onError={(e) =>
+                  console.log("Image loading error:", e.nativeEvent.error)
+                }
+              />
+            ) : (
+              <View
+                style={{
+                  width: 60,
+                  height: 90,
+                  borderRadius: 4,
+                  backgroundColor: "#333",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Text style={{ color: "#666" }}>📚</Text>
+              </View>
+            )}
+            <View style={{ flex: 1 }}>
+              <Text style={{ color: "#FFFFFF", fontSize: 16, marginBottom: 4 }}>
+                {item.title || item.name}
+              </Text>
+              <Text style={{ color: "#666666", fontSize: 12 }}>
+                Added: {new Date(item.addedAt).toLocaleDateString()}
+              </Text>
+            </View>
           </Pressable>
         )}
       />

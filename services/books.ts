@@ -1,5 +1,6 @@
 import * as FileSystem from "expo-file-system";
 import * as DocumentPicker from "expo-document-picker";
+import { EPUBService } from "./epub";
 
 const BOOKS_DIRECTORY = `${FileSystem.documentDirectory}books/`;
 const BOOKS_INDEX_FILE = `${FileSystem.documentDirectory}books-index.json`;
@@ -9,6 +10,8 @@ type Book = {
   name: string;
   path: string;
   addedAt: string;
+  coverImage?: string;
+  title?: string;
 };
 
 export const BooksService = {
@@ -52,12 +55,18 @@ export const BooksService = {
         to: newPath,
       });
 
+      // Extract EPUB metadata including cover
+      const { coverImage, title } = await EPUBService.extractEPUB(newPath);
+      console.log("Extracted cover image:", !!coverImage);
+
       // Create book metadata
       const newBook: Book = {
         id: bookId,
         name: pickedFile.name,
         path: newPath,
         addedAt: new Date().toISOString(),
+        coverImage: coverImage || undefined,
+        title: title || undefined,
       };
 
       await BooksService.addToIndex(newBook);

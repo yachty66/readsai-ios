@@ -18,6 +18,27 @@ export const EPUBService = {
       const zip = new JSZip();
       const epub = await zip.loadAsync(content, { base64: true });
 
+      // Find cover image with more patterns
+      let coverImage = null;
+      for (const [path, file] of Object.entries(epub.files)) {
+        if (
+          path.match(/cover\.(jpg|jpeg|png)$/i) ||
+          path.match(/cover-image\.(jpg|jpeg|png)$/i) ||
+          path.toLowerCase().includes("cover") ||
+          path.match(/^images?\/.*\.(jpg|jpeg|png)$/i)
+        ) {
+          console.log("Found potential cover image:", path);
+          const imageContent = await file.async("base64");
+          const ext = path.split(".").pop()?.toLowerCase();
+          const mimeType = ext === "png" ? "image/png" : "image/jpeg";
+          coverImage = `data:${mimeType};base64,${imageContent}`;
+          break;
+        }
+      }
+
+      // Log whether we found a cover
+      console.log("Cover image found:", !!coverImage);
+
       // Find and parse the OPF file to get metadata
       let title = null;
       for (const [path, file] of Object.entries(epub.files)) {
@@ -29,18 +50,6 @@ export const EPUBService = {
           if (titleMatch && titleMatch[1]) {
             title = titleMatch[1].trim();
           }
-          break;
-        }
-      }
-
-      // Find cover image (usually named cover.jpg or similar)
-      let coverImage = null;
-      for (const [path, file] of Object.entries(epub.files)) {
-        if (path.match(/cover\.(jpg|jpeg|png)$/i)) {
-          const imageContent = await file.async("base64");
-          const ext = path.split(".").pop()?.toLowerCase();
-          const mimeType = ext === "png" ? "image/png" : "image/jpeg";
-          coverImage = `data:${mimeType};base64,${imageContent}`;
           break;
         }
       }
@@ -65,6 +74,12 @@ export const EPUBService = {
         if (path.endsWith(".html") || path.endsWith(".xhtml")) {
           let content = await file.async("text");
 
+          // Extract chapter title from content
+          const titleMatch = content.match(/<h[1-6][^>]*>([^<]+)<\/h[1-6]>/i);
+          const chapterTitle = titleMatch
+            ? titleMatch[1].trim()
+            : `Chapter ${chapters.length + 1}`;
+
           // Replace image sources with base64 data URLs
           for (const [imgPath, dataUrl] of images.entries()) {
             const relativePath = imgPath.split("/").pop();
@@ -77,7 +92,7 @@ export const EPUBService = {
           chapters.push({
             id: path,
             href: path,
-            title: `Chapter ${chapters.length + 1}`,
+            title: chapterTitle,
             content,
           });
         }
