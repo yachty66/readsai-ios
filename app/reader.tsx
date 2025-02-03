@@ -43,18 +43,22 @@ export default function ReaderScreen() {
             font-size: ${fontSize}px;
             color: ${isDarkMode ? "#fff" : "#333"};
             background: ${isDarkMode ? "#000" : "#fff"};
-            text-align: left;
-            max-width: 800px;
-            margin: 0 auto;
-          }
-          p, h1, h2, h3, h4, h5, h6 {
-            text-align: left;
           }
           img {
             max-width: 100%;
             height: auto;
             display: block;
+            margin: 1em auto;
+            border-radius: 8px;
+          }
+          figure {
             margin: 1em 0;
+            text-align: center;
+          }
+          figcaption {
+            font-size: 0.9em;
+            color: ${isDarkMode ? "#aaa" : "#666"};
+            margin-top: 0.5em;
           }
         </style>
       </head>
