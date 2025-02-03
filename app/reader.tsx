@@ -1,13 +1,15 @@
 import { Stack, useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
-import { View, Text, ScrollView, Pressable } from "react-native";
+import { useEffect, useState, useRef } from "react";
+import { View, Text, Pressable } from "react-native";
 import { WebView } from "react-native-webview";
 import { EPUBService } from "@/services/epub";
 
 export default function ReaderScreen() {
   const { path, name } = useLocalSearchParams();
   const [chapters, setChapters] = useState<Chapter[]>([]);
-  const [currentChapter, setCurrentChapter] = useState(0);
+  const [fontSize, setFontSize] = useState(16);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const webViewRef = useRef<WebView>(null);
 
   useEffect(() => {
     const loadBook = async () => {
@@ -22,7 +24,31 @@ export default function ReaderScreen() {
     loadBook();
   }, [path]);
 
-  const currentContent = chapters[currentChapter]?.content || "";
+  // Combine all chapters into one continuous content
+  const fullContent = chapters
+    .map((ch) => ch.content)
+    .join(
+      '<hr style="border: none; border-top: 1px solid #666; margin: 2em 0;">'
+    );
+
+  const htmlContent = `
+    <html>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+        <style>
+          body {
+            padding: 20px;
+            font-family: system-ui;
+            line-height: 1.6;
+            font-size: ${fontSize}px;
+            color: ${isDarkMode ? "#fff" : "#333"};
+            background: ${isDarkMode ? "#000" : "#fff"};
+          }
+        </style>
+      </head>
+      <body>${fullContent}</body>
+    </html>
+  `;
 
   return (
     <>
@@ -31,53 +57,53 @@ export default function ReaderScreen() {
           title: name as string,
           headerStyle: { backgroundColor: "#000000" },
           headerTintColor: "#FFFFFF",
+          headerRight: () => (
+            <View style={{ flexDirection: "row", gap: 16 }}>
+              <Pressable onPress={() => setIsDarkMode(!isDarkMode)}>
+                <Text style={{ color: "#FFF" }}>
+                  {isDarkMode ? "☀️" : "🌙"}
+                </Text>
+              </Pressable>
+            </View>
+          ),
         }}
       />
-      <View style={{ flex: 1, backgroundColor: "#000000" }}>
+      <View
+        style={{ flex: 1, backgroundColor: isDarkMode ? "#000000" : "#FFFFFF" }}
+      >
         <WebView
-          source={{
-            html: `
-              <html>
-                <head>
-                  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-                  <style>
-                    body {
-                      padding: 20px;
-                      font-family: system-ui;
-                      line-height: 1.6;
-                      color: #333;
-                      background: white;
-                    }
-                  </style>
-                </head>
-                <body>
-                  ${currentContent}
-                </body>
-              </html>
-            `,
-          }}
+          ref={webViewRef}
+          source={{ html: htmlContent }}
           style={{ flex: 1 }}
+          onScroll={(event) => {
+            // Handle scroll events if needed
+            const { contentOffset, contentSize, layoutMeasurement } =
+              event.nativeEvent;
+            // You can calculate reading progress here
+          }}
         />
+
+        {/* Font size controls */}
         <View
-          style={{ flexDirection: "row", padding: 16, backgroundColor: "#111" }}
+          style={{
+            position: "absolute",
+            right: 16,
+            top: "50%",
+            backgroundColor: isDarkMode ? "#111" : "#eee",
+            borderRadius: 8,
+            padding: 8,
+          }}
         >
-          <Pressable
-            onPress={() => setCurrentChapter((c) => Math.max(0, c - 1))}
-            style={{ padding: 8, opacity: currentChapter > 0 ? 1 : 0.5 }}
-          >
-            <Text style={{ color: "#FFF" }}>Previous</Text>
+          <Pressable onPress={() => setFontSize((f) => f + 1)}>
+            <Text style={{ color: isDarkMode ? "#FFF" : "#000", fontSize: 18 }}>
+              A+
+            </Text>
           </Pressable>
-          <View style={{ flex: 1 }} />
-          <Pressable
-            onPress={() =>
-              setCurrentChapter((c) => Math.min(chapters.length - 1, c + 1))
-            }
-            style={{
-              padding: 8,
-              opacity: currentChapter < chapters.length - 1 ? 1 : 0.5,
-            }}
-          >
-            <Text style={{ color: "#FFF" }}>Next</Text>
+          <View style={{ height: 8 }} />
+          <Pressable onPress={() => setFontSize((f) => Math.max(12, f - 1))}>
+            <Text style={{ color: isDarkMode ? "#FFF" : "#000", fontSize: 14 }}>
+              A-
+            </Text>
           </Pressable>
         </View>
       </View>
