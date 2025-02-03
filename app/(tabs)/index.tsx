@@ -11,8 +11,8 @@ export default function HomeScreen() {
     refreshBooks();
   }, []);
 
-  const handleClear = async () => {
-    await BooksService.clearAllBooks();
+  const handleDelete = async (bookId: string) => {
+    await BooksService.deleteBook(bookId);
     refreshBooks();
   };
 
@@ -50,25 +50,8 @@ export default function HomeScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: "#000000" }}>
-      <View style={{ padding: 16, paddingTop: 60 }}>
-        <Pressable
-          onPress={handleClear}
-          style={{
-            padding: 16,
-            backgroundColor: "#FF3B30",
-            borderRadius: 8,
-            marginBottom: 16,
-            alignItems: "center",
-          }}
-        >
-          <Text style={{ color: "#FFFFFF", fontWeight: "500", fontSize: 16 }}>
-            Clear All Books
-          </Text>
-        </Pressable>
-      </View>
-
       <FlatList
-        style={{ paddingHorizontal: 16 }}
+        style={{ padding: 16, paddingTop: 60 }}
         data={books}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
@@ -91,12 +74,9 @@ export default function HomeScreen() {
                   width: 60,
                   height: 90,
                   borderRadius: 4,
-                  backgroundColor: "#333", // Fallback color while loading
+                  backgroundColor: "#333",
                 }}
                 resizeMode="cover"
-                onError={(e) =>
-                  console.log("Image loading error:", e.nativeEvent.error)
-                }
               />
             ) : (
               <View
@@ -120,6 +100,18 @@ export default function HomeScreen() {
                 Added: {new Date(item.addedAt).toLocaleDateString()}
               </Text>
             </View>
+            <Pressable
+              onPress={(e) => {
+                e.stopPropagation();
+                handleDelete(item.id);
+              }}
+              style={({ pressed }) => ({
+                padding: 12,
+                opacity: pressed ? 0.5 : 1,
+              })}
+            >
+              <Text style={{ fontSize: 18 }}>🗑️</Text>
+            </Pressable>
           </Pressable>
         )}
       />

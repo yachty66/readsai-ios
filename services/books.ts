@@ -126,4 +126,26 @@ export const BooksService = {
       console.error("Error clearing books:", error);
     }
   },
+
+  deleteBook: async (bookId: string) => {
+    try {
+      const books = await BooksService.getBooks();
+      const bookToDelete = books.find((b) => b.id === bookId);
+
+      if (bookToDelete) {
+        // Delete the actual file
+        await FileSystem.deleteAsync(bookToDelete.path);
+
+        // Remove from index
+        const updatedBooks = books.filter((b) => b.id !== bookId);
+        await FileSystem.writeAsStringAsync(
+          BOOKS_INDEX_FILE,
+          JSON.stringify(updatedBooks)
+        );
+      }
+    } catch (error) {
+      console.error("Error deleting book:", error);
+      throw error;
+    }
+  },
 };
