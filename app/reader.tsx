@@ -91,36 +91,47 @@ export default function ReaderScreen() {
       <View
         style={{ flex: 1, backgroundColor: isDarkMode ? "#000000" : "#FFFFFF" }}
       >
-        {isLoading ? (
-          <View
-            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-          >
-            <ActivityIndicator
-              size="large"
-              color={isDarkMode ? "#FFFFFF" : "#000000"}
-            />
-            <Text
+        <View style={{ flex: 1 }}>
+          {isLoading ? (
+            <View
               style={{
-                marginTop: 16,
-                color: isDarkMode ? "#FFFFFF" : "#000000",
-                fontSize: 16,
+                position: "absolute",
+                left: 0,
+                right: 0,
+                top: 0,
+                bottom: 0,
+                justifyContent: "center",
+                alignItems: "center",
+                backgroundColor: isDarkMode ? "#000000" : "#FFFFFF",
               }}
             >
-              Loading book...
-            </Text>
-          </View>
-        ) : (
-          <WebView
-            ref={webViewRef}
-            source={{ html: htmlContent }}
-            style={{ flex: 1 }}
-            onLoadProgress={({ nativeEvent }) => {
-              if (nativeEvent.progress === 1) {
-                setIsLoading(false);
-              }
-            }}
-          />
-        )}
+              <ActivityIndicator
+                size="large"
+                color={isDarkMode ? "#FFFFFF" : "#000000"}
+              />
+              <Text
+                style={{
+                  marginTop: 16,
+                  color: isDarkMode ? "#FFFFFF" : "#000000",
+                  fontSize: 16,
+                }}
+              >
+                Loading book...
+              </Text>
+            </View>
+          ) : (
+            <WebView
+              ref={webViewRef}
+              source={{ html: htmlContent }}
+              style={{ flex: 1 }}
+              onLoadProgress={({ nativeEvent }) => {
+                if (nativeEvent.progress === 1) {
+                  setIsLoading(false);
+                }
+              }}
+            />
+          )}
+        </View>
 
         {/* Font size controls */}
         {!isLoading && (
