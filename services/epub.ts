@@ -18,6 +18,18 @@ export const EPUBService = {
       const zip = new JSZip();
       const epub = await zip.loadAsync(content, { base64: true });
 
+      // Find cover image (usually named cover.jpg or similar)
+      let coverImage = null;
+      for (const [path, file] of Object.entries(epub.files)) {
+        if (path.match(/cover\.(jpg|jpeg|png)$/i)) {
+          const imageContent = await file.async("base64");
+          const ext = path.split(".").pop()?.toLowerCase();
+          const mimeType = ext === "png" ? "image/png" : "image/jpeg";
+          coverImage = `data:${mimeType};base64,${imageContent}`;
+          break;
+        }
+      }
+
       // Extract images first and create blob URLs
       const images = new Map();
       for (const [path, file] of Object.entries(epub.files)) {
@@ -56,7 +68,10 @@ export const EPUBService = {
         }
       }
 
-      return { chapters };
+      return {
+        chapters,
+        coverImage,
+      };
     } catch (error) {
       console.error("Error extracting EPUB:", error);
       throw error;

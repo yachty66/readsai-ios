@@ -7,6 +7,7 @@ import { EPUBService } from "@/services/epub";
 export default function ReaderScreen() {
   const { path, name } = useLocalSearchParams();
   const [chapters, setChapters] = useState<Chapter[]>([]);
+  const [coverImage, setCoverImage] = useState<string | null>(null);
   const [fontSize, setFontSize] = useState(16);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -16,8 +17,11 @@ export default function ReaderScreen() {
     const loadBook = async () => {
       try {
         setIsLoading(true);
-        const { chapters } = await EPUBService.extractEPUB(path as string);
+        const { chapters, coverImage } = await EPUBService.extractEPUB(
+          path as string
+        );
         setChapters(chapters);
+        setCoverImage(coverImage);
       } catch (error) {
         console.error("Error loading book:", error);
       } finally {
@@ -48,6 +52,19 @@ export default function ReaderScreen() {
             color: ${isDarkMode ? "#fff" : "#333"};
             background: ${isDarkMode ? "#000" : "#fff"};
           }
+          .cover {
+            max-width: 70%;
+            margin: 2em auto;
+            display: block;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+          }
+          .book-title {
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 1em 0 2em;
+          }
           img {
             max-width: 100%;
             height: auto;
@@ -66,7 +83,15 @@ export default function ReaderScreen() {
           }
         </style>
       </head>
-      <body>${fullContent}</body>
+      <body>
+        ${
+          coverImage
+            ? `<img src="${coverImage}" class="cover" alt="Book cover">`
+            : ""
+        }
+        <h1 class="book-title">${name}</h1>
+        ${fullContent}
+      </body>
     </html>
   `;
 

@@ -1,3 +1,2 @@
-- include images
+- add title of the book together with cover at the beginning
 - make the reader close via "drag and drop" and remove all clickable elements from the reader
-- improve the jumps between chaper - make them more smooth and increase title font size
