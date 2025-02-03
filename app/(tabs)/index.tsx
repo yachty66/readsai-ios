@@ -3,10 +3,38 @@ import { Text } from "react-native";
 
 export default function HomeScreen() {
   return (
-    <View className="flex-1 items-center justify-center bg-light-background dark:bg-dark-background">
-      <Text className="text-lg text-light-text dark:text-dark-text">
-        No books added yet
-      </Text>
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: "#000000",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <View
+        style={{
+          alignItems: "center",
+          gap: 8,
+        }}
+      >
+        <Text
+          style={{
+            fontSize: 24,
+            color: "#FFFFFF",
+            fontWeight: "500",
+          }}
+        >
+          No books added yet
+        </Text>
+        <Text
+          style={{
+            fontSize: 14,
+            color: "rgba(255,255,255,0.6)",
+          }}
+        >
+          Add your first book by tapping the + button
+        </Text>
+      </View>
     </View>
   );
 }
