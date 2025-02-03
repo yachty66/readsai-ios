@@ -1,23 +1,12 @@
-import { StyleSheet } from "react-native";
-
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
+import { View } from "react-native";
+import { Text } from "react-native";
 
 export default function HomeScreen() {
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText style={styles.text}>No books added yet</ThemedText>
-    </ThemedView>
+    <View className="flex-1 items-center justify-center bg-light-background dark:bg-dark-background">
+      <Text className="text-lg text-light-text dark:text-dark-text">
+        No books added yet
+      </Text>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  text: {
-    fontSize: 18,
-  },
-});
