@@ -1,4 +1,4 @@
-import { View, Text, FlatList } from "react-native";
+import { View, Text, FlatList, Pressable } from "react-native";
 import { useEffect, useState } from "react";
 import { BooksService } from "@/services/books";
 
@@ -15,6 +15,11 @@ export default function HomeScreen() {
     const loadedBooks = await BooksService.getBooks();
     console.log("Loaded books:", loadedBooks);
     setBooks(loadedBooks);
+  };
+
+  const handleClear = async () => {
+    await BooksService.clearAllBooks();
+    loadBooks(); // Refresh the list
   };
 
   if (books.length === 0) {
@@ -41,6 +46,20 @@ export default function HomeScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: "#000000", padding: 16 }}>
+      <Pressable
+        onPress={handleClear}
+        style={{
+          padding: 12,
+          backgroundColor: "#FF3B30",
+          borderRadius: 8,
+          marginBottom: 16,
+          alignItems: "center",
+        }}
+      >
+        <Text style={{ color: "#FFFFFF", fontWeight: "500" }}>
+          Clear All Books
+        </Text>
+      </Pressable>
       <FlatList
         data={books}
         keyExtractor={(item) => item.id}

@@ -112,4 +112,21 @@ export const BooksService = {
       throw error;
     }
   },
+
+  clearAllBooks: async () => {
+    try {
+      // Delete all files in books directory
+      const dirContents = await FileSystem.readDirectoryAsync(BOOKS_DIRECTORY);
+      for (const file of dirContents) {
+        await FileSystem.deleteAsync(`${BOOKS_DIRECTORY}${file}`);
+      }
+
+      // Reset index file to empty array
+      await FileSystem.writeAsStringAsync(BOOKS_INDEX_FILE, JSON.stringify([]));
+
+      console.log("Cleared all books");
+    } catch (error) {
+      console.error("Error clearing books:", error);
+    }
+  },
 };
