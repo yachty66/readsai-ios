@@ -49,8 +49,11 @@ export default function ReaderScreen() {
             font-family: system-ui;
             line-height: 1.6;
             font-size: ${fontSize}px;
-            color: ${isDarkMode ? "#fff" : "#333"};
-            background: ${isDarkMode ? "#000" : "#fff"};
+            color: #fff;
+            background: #000;
+          }
+          * {
+            text-align: left !important;
           }
           .cover {
             max-width: 70%;
@@ -60,7 +63,6 @@ export default function ReaderScreen() {
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
           }
           .book-title {
-            text-align: center;
             font-size: 1.5em;
             font-weight: bold;
             margin: 1em 0 2em;
@@ -69,17 +71,11 @@ export default function ReaderScreen() {
             max-width: 100%;
             height: auto;
             display: block;
-            margin: 1em auto;
+            margin: 1em 0;
             border-radius: 8px;
           }
-          figure {
-            margin: 1em 0;
-            text-align: center;
-          }
-          figcaption {
-            font-size: 0.9em;
-            color: ${isDarkMode ? "#aaa" : "#666"};
-            margin-top: 0.5em;
+          p, div, span, h1, h2, h3, h4, h5, h6 {
+            text-align: left !important;
           }
         </style>
       </head>

@@ -1,2 +1,4 @@
-- add title of the book together with cover at the beginning
+- make left aligned
+- always black mode
+- increase font size for chapter beginnings
 - make the reader close via "drag and drop" and remove all clickable elements from the reader
