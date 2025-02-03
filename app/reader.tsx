@@ -1,6 +1,6 @@
 import { Stack, useLocalSearchParams } from "expo-router";
 import { useEffect, useState, useRef } from "react";
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, ActivityIndicator } from "react-native";
 import { WebView } from "react-native-webview";
 import { EPUBService } from "@/services/epub";
 
@@ -9,15 +9,19 @@ export default function ReaderScreen() {
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [fontSize, setFontSize] = useState(16);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const webViewRef = useRef<WebView>(null);
 
   useEffect(() => {
     const loadBook = async () => {
       try {
+        setIsLoading(true);
         const { chapters } = await EPUBService.extractEPUB(path as string);
         setChapters(chapters);
       } catch (error) {
         console.error("Error loading book:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -87,41 +91,66 @@ export default function ReaderScreen() {
       <View
         style={{ flex: 1, backgroundColor: isDarkMode ? "#000000" : "#FFFFFF" }}
       >
-        <WebView
-          ref={webViewRef}
-          source={{ html: htmlContent }}
-          style={{ flex: 1 }}
-          onScroll={(event) => {
-            // Handle scroll events if needed
-            const { contentOffset, contentSize, layoutMeasurement } =
-              event.nativeEvent;
-            // You can calculate reading progress here
-          }}
-        />
+        {isLoading ? (
+          <View
+            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+          >
+            <ActivityIndicator
+              size="large"
+              color={isDarkMode ? "#FFFFFF" : "#000000"}
+            />
+            <Text
+              style={{
+                marginTop: 16,
+                color: isDarkMode ? "#FFFFFF" : "#000000",
+                fontSize: 16,
+              }}
+            >
+              Loading book...
+            </Text>
+          </View>
+        ) : (
+          <WebView
+            ref={webViewRef}
+            source={{ html: htmlContent }}
+            style={{ flex: 1 }}
+            onLoadProgress={({ nativeEvent }) => {
+              if (nativeEvent.progress === 1) {
+                setIsLoading(false);
+              }
+            }}
+          />
+        )}
 
         {/* Font size controls */}
-        <View
-          style={{
-            position: "absolute",
-            right: 16,
-            top: "50%",
-            backgroundColor: isDarkMode ? "#111" : "#eee",
-            borderRadius: 8,
-            padding: 8,
-          }}
-        >
-          <Pressable onPress={() => setFontSize((f) => f + 1)}>
-            <Text style={{ color: isDarkMode ? "#FFF" : "#000", fontSize: 18 }}>
-              A+
-            </Text>
-          </Pressable>
-          <View style={{ height: 8 }} />
-          <Pressable onPress={() => setFontSize((f) => Math.max(12, f - 1))}>
-            <Text style={{ color: isDarkMode ? "#FFF" : "#000", fontSize: 14 }}>
-              A-
-            </Text>
-          </Pressable>
-        </View>
+        {!isLoading && (
+          <View
+            style={{
+              position: "absolute",
+              right: 16,
+              top: "50%",
+              backgroundColor: isDarkMode ? "#111" : "#eee",
+              borderRadius: 8,
+              padding: 8,
+            }}
+          >
+            <Pressable onPress={() => setFontSize((f) => f + 1)}>
+              <Text
+                style={{ color: isDarkMode ? "#FFF" : "#000", fontSize: 18 }}
+              >
+                A+
+              </Text>
+            </Pressable>
+            <View style={{ height: 8 }} />
+            <Pressable onPress={() => setFontSize((f) => Math.max(12, f - 1))}>
+              <Text
+                style={{ color: isDarkMode ? "#FFF" : "#000", fontSize: 14 }}
+              >
+                A-
+              </Text>
+            </Pressable>
+          </View>
+        )}
       </View>
     </>
   );
