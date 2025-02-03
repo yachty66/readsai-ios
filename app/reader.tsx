@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import { View, Text, Pressable, ActivityIndicator } from "react-native";
 import { WebView } from "react-native-webview";
 import { EPUBService } from "@/services/epub";
+import { useRouter } from "expo-router";
 
 export default function ReaderScreen() {
   const { path, name } = useLocalSearchParams();
@@ -13,6 +14,7 @@ export default function ReaderScreen() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const webViewRef = useRef<WebView>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const loadBook = async () => {
@@ -97,18 +99,7 @@ export default function ReaderScreen() {
     <>
       <Stack.Screen
         options={{
-          title: name as string,
-          headerStyle: { backgroundColor: "#000000" },
-          headerTintColor: "#FFFFFF",
-          headerRight: () => (
-            <View style={{ flexDirection: "row", gap: 16 }}>
-              <Pressable onPress={() => setIsDarkMode(!isDarkMode)}>
-                <Text style={{ color: "#FFF" }}>
-                  {isDarkMode ? "☀️" : "🌙"}
-                </Text>
-              </Pressable>
-            </View>
-          ),
+          headerShown: false,
         }}
       />
       <View
