@@ -2,6 +2,7 @@ import { View, Text, FlatList, Pressable } from "react-native";
 import { useEffect } from "react";
 import { BooksService } from "@/services/books";
 import { useBooks } from "@/services/BooksContext";
+import { router } from "expo-router";
 
 export default function HomeScreen() {
   const { books, refreshBooks } = useBooks();
@@ -13,6 +14,16 @@ export default function HomeScreen() {
   const handleClear = async () => {
     await BooksService.clearAllBooks();
     refreshBooks();
+  };
+
+  const handleBookPress = (book: Book) => {
+    router.push({
+      pathname: "/reader",
+      params: {
+        path: book.path,
+        name: book.name,
+      },
+    });
   };
 
   if (books.length === 0) {
@@ -61,19 +72,20 @@ export default function HomeScreen() {
         data={books}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <View
-            style={{
+          <Pressable
+            onPress={() => handleBookPress(item)}
+            style={({ pressed }) => ({
               padding: 16,
-              backgroundColor: "#111111",
+              backgroundColor: pressed ? "#222222" : "#111111",
               marginBottom: 8,
               borderRadius: 8,
-            }}
+            })}
           >
             <Text style={{ color: "#FFFFFF", fontSize: 16 }}>{item.name}</Text>
             <Text style={{ color: "#666666", fontSize: 12 }}>
               Added: {new Date(item.addedAt).toLocaleDateString()}
             </Text>
-          </View>
+          </Pressable>
         )}
       />
     </View>
